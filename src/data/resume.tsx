@@ -121,7 +121,7 @@ export const DATA = {
       location: "Remote",
       title: "Founder and Full-Stack Developer",
       logoUrl: "/devpilotx.svg",
-      start: "Sep 2025",
+      start: "Jan 2025",
       end: "Present",
       description:
         "Building my own SaaS products end to end, from the database schema to the servers they run on. Most of the frontends are Next.js and React, the backends are Node.js or Python with FastAPI, and the data sits in PostgreSQL and Redis. I deploy everything myself with Docker on AWS EC2 and Oracle Cloud VPS machines behind Nginx, and ship changes through GitHub Actions.",
