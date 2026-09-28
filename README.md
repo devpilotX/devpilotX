@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://devpilotx.github.io/devpilotX/">Website</a>
+  <a href="https://devpilotx.me/">Website</a>
   &nbsp;·&nbsp;
   <a href="https://www.linkedin.com/in/dipanshu03j">LinkedIn</a>
   &nbsp;·&nbsp;
@@ -26,12 +26,12 @@ These days I build products end to end. I write the frontend and the API, design
 
 | Project | What it is | Built with |
 | --- | --- | --- |
-| [**Quant**](https://github.com/devpilotX/quant) | Systematic trading system for NSE and BSE with a decision engine, an event-driven backtester and a live dashboard. Runs in paper mode. | Python, FastAPI, Next.js, PostgreSQL, Redis |
+| [**quantsys**](https://github.com/devpilotX/quantsys) | Systematic trading engine for NSE equities and index futures. One decision engine drives the backtester, paper and live paths, with an audit trail for every decision. Runs in paper mode. | Python, FastAPI, Next.js, PostgreSQL, Redis |
 | [**Maanak**](https://github.com/devpilotX/maanak) | Inspection recording for packaged goods under India's Legal Metrology rules. OCR reads the label, a rule engine checks it, and every decision is kept in a tamper-evident audit trail. | Python, FastAPI, PostgreSQL, Tesseract, Docker |
 | [**PaisaReality**](https://github.com/devpilotX/paisarealitymoney) | Personal finance site for India with daily gold, fuel and LPG prices for 50+ cities, 350+ government schemes and a set of money calculators. | Next.js, TypeScript, PostgreSQL, Razorpay |
 | [**Veydria**](https://github.com/devpilotX/Veydria) | AI governance platform that maps AI systems to the EU AI Act, NIST AI RMF and ISO 42001, runs evals and prepares audit documents. | Next.js, TypeScript, Drizzle, FastAPI, Stripe |
 
-More of what I've built, from a Rust SQL engine to a Lean 4 proof, is on [my website](https://devpilotx.github.io/devpilotX/#builds) and in my [repositories](https://github.com/devpilotX?tab=repositories).
+More of what I've built, from a Rust SQL engine to a Lean 4 proof, is on [my website](https://devpilotx.me/#builds) and in my [repositories](https://github.com/devpilotX?tab=repositories).
 
 ## Tools I use
 
@@ -41,10 +41,10 @@ More of what I've built, from a Rust SQL engine to a Lean 4 proof, is on [my web
 
 ## My website
 
-My portfolio has the full list of projects, my education and a small blog. You can find it at [devpilotx.github.io/devpilotX](https://devpilotx.github.io/devpilotX/).
+My portfolio has the full list of projects, my education and a small blog. You can find it at [devpilotx.me](https://devpilotx.me/).
 
 <p align="center">
-  <a href="https://devpilotx.github.io/devpilotX/">
+  <a href="https://devpilotx.me/">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset=".github/assets/site-dark.png">
       <img src=".github/assets/site-light.png" alt="Screenshot of my portfolio website" width="720">
@@ -86,7 +86,7 @@ pnpm dev
 
 Profile details, projects and links live in [`src/data/resume.tsx`](./src/data/resume.tsx), and blog posts are MDX files in [`content/`](./content).
 
-Every push to `main` runs [`deploy.yml`](./.github/workflows/deploy.yml), which lints, builds and type checks the site before publishing it. Pull requests run the same checks without deploying. The build reads its base path from the Pages settings, so moving to a custom domain only needs a change under **Settings → Pages**.
+Every push to `main` runs [`deploy.yml`](./.github/workflows/deploy.yml). It lints, builds and type checks the site, checks that every internal link and asset in the export exists, publishes it to GitHub Pages, and then requests the live home page and all of its assets to confirm the deploy works. Pull requests run the same checks without deploying.
 
 The design is based on the open source [portfolio template by Dillion Verma](https://github.com/magicuidesign/portfolio). Both are released under the [MIT license](./LICENSE).
 

@@ -15,7 +15,8 @@
     "start": "npx serve@14.2.4 -l 4173",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:links": "node scripts/check-links.mjs"
   },
   "dependencies": {
     "@content-collections/mdx": "^0.2.2",

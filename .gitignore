@@ -40,9 +40,6 @@ next-env.d.ts
 .content-collections
 
 # local only
-.kiro/
 myimage.jpg
-college-logo.jpg
-jnv_logo.png
 college-logo.jpg
 jnv_logo.png

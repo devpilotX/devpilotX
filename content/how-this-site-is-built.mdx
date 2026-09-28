@@ -35,6 +35,8 @@ That change had a few side effects.
 
 ## Deploying
 
-A single workflow in `.github/workflows` handles everything. On a pull request it runs the linter, the type checker and a full build. On a push to `main` it also reads the Pages settings with `actions/configure-pages`, builds with the right base path, and publishes the `out` folder with `actions/deploy-pages`. Because the base path comes from GitHub, the same code works under `devpilotx.github.io/devpilotX` today and on a custom domain later.
+A single workflow in `.github/workflows` handles everything. On a pull request it runs the linter, the type checker, a full build and a link check over the exported HTML. On a push to `main` it also publishes the `out` folder with `actions/deploy-pages`, then loads the live home page and requests every stylesheet, script and image it references.
+
+That last step exists because of a mistake I made early on. The site first went up under `devpilotx.github.io/devpilotX`, so every asset URL started with `/devpilotX`. When I moved to `devpilotx.me` the HTML still pointed there, the build passed, and the live page loaded without any of its CSS or JavaScript. Now a wrong base path fails the link check, and a broken deploy fails the smoke test.
 
 Adding a post is a new `.mdx` file in `content`. Pushing it to `main` is the whole release process.

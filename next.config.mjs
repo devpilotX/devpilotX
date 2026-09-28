@@ -1,11 +1,9 @@
 import { withContentCollections } from "@content-collections/next";
 
-// In CI, actions/configure-pages provides the path the site is served from:
-// "/devpilotX" on devpilotx.github.io, or "" once a custom domain is set.
-// Locally both are empty, so the dev server runs at the root as usual.
-const basePath = process.env.PAGES_BASE_PATH ?? "";
-// configure-pages reports http:// whenever "Enforce HTTPS" is off, but the
-// site is always reachable over https, so links and metadata use that.
+// The site is served from the root of its custom domain, devpilotx.me.
+// PAGES_BASE_PATH is only needed when hosting under a sub-path, for example
+// a fork served from <user>.github.io/<repo>. It must start with "/".
+const basePath = (process.env.PAGES_BASE_PATH ?? "").replace(/\/$/, "");
 const siteUrl = (process.env.PAGES_BASE_URL || "https://devpilotx.me").replace(
   /^http:\/\//,
   "https://"

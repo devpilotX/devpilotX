@@ -147,31 +147,31 @@ export const DATA = {
   ],
   projects: [
     {
-      title: "Quant",
-      slug: "quant",
-      tagline: "Systematic trading for Indian markets",
-      href: `${GITHUB}/quant`,
+      title: "quantsys",
+      slug: "quantsys",
+      tagline: "Systematic trading for NSE equities and futures",
+      href: `${GITHUB}/quantsys`,
       dates: "Jun 2026 - Present",
       active: true,
       description:
-        "A systematic trading system for Indian markets (NSE and BSE, cash and F&O) on top of the Angel One SmartAPI. It has a decision engine, an event-driven backtester, an execution layer and a dashboard. It currently runs in paper mode only.",
+        "A systematic trading engine for NSE equities and index futures on the Angel One SmartAPI. One decision engine drives the backtester, paper and live paths, and every veto lands in an audit trail. Live orders stay locked behind deflated Sharpe gates, so it runs in paper mode.",
       technologies: [
         "Python",
-        "Pandas",
-        "NumPy",
         "FastAPI",
         "Next.js",
         "PostgreSQL",
+        "TimescaleDB",
         "Redis",
+        "TypeScript",
       ],
       links: [
         {
           type: "Source",
-          href: `${GITHUB}/quant`,
+          href: `${GITHUB}/quantsys`,
           icon: <Icons.github className="size-3" />,
         },
       ],
-      image: "/projects/quant.png",
+      image: "/projects/quantsys.png",
       video: "",
     },
     {

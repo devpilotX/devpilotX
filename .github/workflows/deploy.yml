@@ -18,9 +18,8 @@ jobs:
   build:
     name: Lint, type check and build
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: read
+    outputs:
+      build-id: ${{ steps.build-id.outputs.id }}
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -37,26 +36,24 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Tells the build where the site is served from. On a pull request
-      # there is no deployment, so the build falls back to the defaults.
-      - name: Read Pages settings
-        id: pages
-        if: github.event_name != 'pull_request'
-        uses: actions/configure-pages@v5
-
       - name: Lint
         run: pnpm lint
 
+      # The site lives at the root of devpilotx.me, so no base path is set.
       - name: Build
         run: pnpm build
-        env:
-          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
-          PAGES_BASE_URL: ${{ steps.pages.outputs.base_url }}
 
       # Runs after the build because the build generates the
       # content-collections types that the blog pages import.
       - name: Type check
         run: pnpm typecheck
+
+      - name: Check internal links
+        run: pnpm check:links
+
+      - name: Record build ID
+        id: build-id
+        run: echo "id=$(cat .next/BUILD_ID)" >> "$GITHUB_OUTPUT"
 
       - name: Upload site
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
@@ -74,8 +71,27 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: https://devpilotx.me/
     steps:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
+  smoke:
+    name: Check the live site
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Request the home page and its assets
+        run: node scripts/smoke.mjs
+        env:
+          SITE_URL: https://devpilotx.me
+          EXPECTED_BUILD: ${{ needs.build.outputs.build-id }}
