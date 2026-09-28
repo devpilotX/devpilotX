@@ -207,7 +207,7 @@ export const DATA = {
       slug: "paisareality",
       tagline: "Personal finance data for India",
       href: `${GITHUB}/paisarealitymoney`,
-      dates: "Mar 2026 - Present",
+      dates: "Jan 2025 - Present",
       active: true,
       description:
         "A personal finance site for India. Daily gold, silver, fuel and LPG prices for 50+ cities, a directory of 350+ government schemes, calculators, bank rate comparisons and a Money Health Score.",
