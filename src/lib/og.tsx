@@ -10,14 +10,16 @@ export const ogSize = { width: 1200, height: 630 };
 // once at build time. Reading assets from disk keeps that step offline.
 async function loadAssets() {
   const publicDir = path.join(process.cwd(), "public");
-  const [cabinetGrotesk, clashDisplay, avatar] = await Promise.all([
+  const [cabinetGrotesk, clashDisplay, avatar, logo] = await Promise.all([
     readFile(path.join(publicDir, "fonts", "CabinetGrotesk-Medium.ttf")),
     readFile(path.join(publicDir, "fonts", "ClashDisplay-Semibold.ttf")),
     readFile(path.join(publicDir, DATA.avatarUrl)),
+    readFile(path.join(publicDir, "devpilotx.svg")),
   ]);
 
   return {
     avatar: `data:image/jpeg;base64,${avatar.toString("base64")}`,
+    logo: `data:image/svg+xml;base64,${logo.toString("base64")}`,
     fonts: [
       { name: "Cabinet Grotesk", data: cabinetGrotesk, weight: 400 as const, style: "normal" as const },
       { name: "Clash Display", data: clashDisplay, weight: 600 as const, style: "normal" as const },
@@ -98,7 +100,7 @@ interface OgCardProps {
 }
 
 export async function renderOgCard({ title, description, date }: OgCardProps) {
-  const { avatar, fonts } = await loadAssets();
+  const { avatar, logo, fonts } = await loadAssets();
 
   return new ImageResponse(
     (
@@ -116,18 +118,21 @@ export async function renderOgCard({ title, description, date }: OgCardProps) {
             borderRadius: 12,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-            <img
-              src={avatar}
-              alt={DATA.name}
-              width={120}
-              height={120}
-              style={{ borderRadius: 24, border: "4px solid #e5e5e5", objectFit: "cover" }}
-            />
-            <div style={{ display: "flex", flexDirection: "column", fontFamily: "Cabinet Grotesk" }}>
-              <span style={{ fontSize: 28, color: "#000000" }}>{DATA.name}</span>
-              <span style={{ fontSize: 22, color: "#666666" }}>devpilotx.me</span>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+              <img
+                src={avatar}
+                alt={DATA.name}
+                width={120}
+                height={120}
+                style={{ borderRadius: 24, border: "4px solid #e5e5e5", objectFit: "cover" }}
+              />
+              <div style={{ display: "flex", flexDirection: "column", fontFamily: "Cabinet Grotesk" }}>
+                <span style={{ fontSize: 28, color: "#000000" }}>{DATA.name}</span>
+                <span style={{ fontSize: 22, color: "#666666" }}>devpilotx.me</span>
+              </div>
             </div>
+            <img src={logo} alt="DevPilotX" width={72} height={72} />
           </div>
           <div style={{ display: "flex", flexDirection: "column", fontFamily: "Cabinet Grotesk" }}>
             <div
