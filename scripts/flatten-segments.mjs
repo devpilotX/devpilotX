@@ -8,7 +8,7 @@
 //
 //   blog/post/__next.blog.$d$slug.__PAGE__.txt
 //
-// On a plain file host like GitHub Pages those requests 404 and every client
+// On a plain file host like Cloudflare Pages those requests 404 and every client
 // side navigation falls back to a full page load. This copies each nested
 // file to the flat name so both paths resolve.
 

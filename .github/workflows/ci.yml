@@ -1,0 +1,76 @@
+name: CI
+
+# Cloudflare Pages builds and publishes the site from main by itself. This
+# workflow checks every change before it is merged, and after a push to main
+# it waits for that commit to go live and checks the live site.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Lint, type check, build and check the export
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build
+
+      # Runs after the build because the build generates the
+      # content-collections types that the blog pages import.
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Check internal links
+        run: pnpm check:links
+
+      - name: Check titles, descriptions, structured data and the sitemap
+        run: pnpm check:seo
+
+  live:
+    name: Check the live site
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Wait for this commit on devpilotx.me and request its pages
+        run: node scripts/smoke.mjs
+        env:
+          SITE_URL: https://devpilotx.me
+          EXPECTED_BUILD: ${{ github.sha }}
+          SMOKE_ATTEMPTS: "40"

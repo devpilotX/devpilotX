@@ -29,7 +29,7 @@ async function exists(file) {
   }
 }
 
-// Maps a URL path to the file GitHub Pages would serve for it.
+// Maps a URL path to the file Cloudflare Pages would serve for it.
 async function resolves(urlPath) {
   const clean = decodeURIComponent(urlPath.split(/[?#]/)[0]);
   const relative = clean.replace(/^\/+/, "");

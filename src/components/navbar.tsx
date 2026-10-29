@@ -1,100 +1,81 @@
-import { Dock, DockIcon } from "@/components/magicui/dock";
+import Link from "next/link";
+import type { ComponentType, ReactNode, SVGProps } from "react";
+import { DockEscape } from "@/components/dock-escape";
+import { EmailOff } from "@/components/email-off";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipArrow,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { DATA } from "@/data/resume";
-import { withBase } from "@/lib/utils";
+import { DATA, socialLinks } from "@/data/resume";
+
+// Icons are 36px on phones and 40px from the sm breakpoint, so all seven fit
+// a 320px screen and every target stays above the 24px WCAG minimum.
+const buttonClass =
+  "dock-button flex size-9 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:size-10";
+
+/**
+ * One dock entry with its label above it. The label is plain CSS (see
+ * .dock-tip in globals.css): it shows on hover and on keyboard focus, can be
+ * hovered itself, and Escape hides it. Screen readers get the same words from
+ * the control's aria-label, so the label itself is hidden from them.
+ */
+function DockItem({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <li className="dock-item relative">
+      {children}
+      <span aria-hidden="true" className="dock-tip">
+        {label}
+      </span>
+    </li>
+  );
+}
+
+function Divider() {
+  return <li aria-hidden="true" className="mx-0.5 h-6 w-px self-center bg-border sm:mx-1" />;
+}
+
+type Icon = ComponentType<SVGProps<SVGSVGElement>>;
 
 export default function Navbar() {
+  const social = socialLinks.filter((link) => link.dock);
+
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-30">
-      {/* Nine icons do not fit a 390px phone at full size, so the dock is
-          tightened and scaled down a little below the sm breakpoint. */}
-      <Dock className="z-50 pointer-events-auto relative h-14 p-2 w-fit mx-auto flex gap-1 sm:gap-2 max-sm:scale-[0.85] origin-bottom border bg-card/90 backdrop-blur-3xl shadow-[0_0_10px_3px] shadow-primary/5">
-        {DATA.navbar.map((item) => {
-          const isExternal = item.href.startsWith("http");
+    <nav
+      aria-label="Main"
+      data-dock
+      className="pointer-events-none fixed inset-x-0 bottom-4 z-30 flex justify-center px-2"
+    >
+      <DockEscape />
+      <ul className="pointer-events-auto flex items-center gap-0.5 rounded-full border bg-card/90 p-1.5 shadow-[0_0_10px_3px] shadow-primary/5 backdrop-blur-xl sm:gap-2 sm:p-2">
+        {DATA.navbar.map((item) => (
+          <DockItem key={item.href} label={item.label}>
+            <Link href={item.href} aria-label={item.label} className={buttonClass}>
+              <item.icon className="size-5" aria-hidden="true" />
+            </Link>
+          </DockItem>
+        ))}
+        <Divider />
+        {social.map((link) => {
+          const IconComponent = link.icon as Icon;
+          const external = link.url.startsWith("http");
+          const anchor = (
+            <a
+              href={link.url}
+              aria-label={external ? `${link.name} (opens in a new tab)` : `Email ${DATA.contact.email}`}
+              className={buttonClass}
+              {...(external ? { target: "_blank", rel: "me noopener noreferrer" } : {})}
+            >
+              <IconComponent className="size-[18px]" aria-hidden="true" />
+            </a>
+          );
           return (
-            <Tooltip key={item.href}>
-              <TooltipTrigger asChild>
-                <a
-                  href={isExternal ? item.href : withBase(item.href)}
-                  target={isExternal ? "_blank" : undefined}
-                  rel={isExternal ? "noopener noreferrer" : undefined}
-                >
-                  <DockIcon className="rounded-3xl cursor-pointer size-full bg-background p-0 text-muted-foreground hover:text-foreground hover:bg-muted backdrop-blur-3xl border border-border transition-colors">
-                    <item.icon className="size-full rounded-sm overflow-hidden object-contain" />
-                  </DockIcon>
-                </a>
-              </TooltipTrigger>
-              <TooltipContent
-                side="top"
-                sideOffset={8}
-                className="rounded-xl bg-primary text-primary-foreground px-4 py-2 text-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]"
-              >
-                <p>{item.label}</p>
-                <TooltipArrow className="fill-primary" />
-              </TooltipContent>
-            </Tooltip>
+            <DockItem key={link.name} label={link.name}>
+              {external ? anchor : <EmailOff>{anchor}</EmailOff>}
+            </DockItem>
           );
         })}
-        <Separator
-          orientation="vertical"
-          className="h-2/3 m-auto w-px bg-border"
-        />
-        {Object.entries(DATA.contact.social)
-          .filter(([_, social]) => social.navbar)
-          .map(([name, social], index) => {
-            const isExternal = social.url.startsWith("http");
-            const IconComponent = social.icon;
-            return (
-              <Tooltip key={`social-${name}-${index}`}>
-                <TooltipTrigger asChild>
-                  <a
-                    href={social.url}
-                    target={isExternal ? "_blank" : undefined}
-                    rel={isExternal ? "noopener noreferrer" : undefined}
-                  >
-                    <DockIcon className="rounded-3xl cursor-pointer size-full bg-background p-0 text-muted-foreground hover:text-foreground hover:bg-muted backdrop-blur-3xl border border-border transition-colors">
-                      <IconComponent className="size-full rounded-sm overflow-hidden object-contain" />
-                    </DockIcon>
-                  </a>
-                </TooltipTrigger>
-                <TooltipContent
-                  side="top"
-                  sideOffset={8}
-                  className="rounded-xl bg-primary text-primary-foreground px-4 py-2 text-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]"
-                >
-                  <p>{name}</p>
-                  <TooltipArrow className="fill-primary" />
-                </TooltipContent>
-              </Tooltip>
-            );
-          })}
-        <Separator
-          orientation="vertical"
-          className="h-2/3 m-auto w-px bg-border"
-        />
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DockIcon className="rounded-3xl cursor-pointer size-full bg-background p-0 text-muted-foreground hover:text-foreground hover:bg-muted backdrop-blur-3xl border border-border transition-colors">
-              <ModeToggle className="size-full cursor-pointer" />
-            </DockIcon>
-          </TooltipTrigger>
-          <TooltipContent
-            side="top"
-            sideOffset={8}
-            className="rounded-xl bg-primary text-primary-foreground px-4 py-2 text-sm shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]"
-          >
-            <p>Theme</p>
-            <TooltipArrow className="fill-primary" />
-          </TooltipContent>
-        </Tooltip>
-      </Dock>
-    </div>
+        <Divider />
+        <DockItem label="Theme">
+          <ModeToggle className={`${buttonClass} cursor-pointer`} />
+        </DockItem>
+      </ul>
+    </nav>
   );
 }

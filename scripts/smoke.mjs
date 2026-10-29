@@ -1,16 +1,28 @@
-// Runs after a deploy. Loads the live home page, then requests every
-// stylesheet, script, image and font it references. The run fails if the
-// page or any of those files does not come back with a 200.
-//
-// GitHub Pages can take a minute to switch to a new deployment, so each
-// attempt that fails is retried before giving up.
+// Runs after a push to main. Cloudflare Pages builds and publishes the site
+// on its own, so this waits until the live home page carries the build ID of
+// this commit (see generateBuildId in next.config.mjs). It then requests every
+// stylesheet, script, image and font the page references, the main pages and
+// files, a made-up URL that must answer 404, and checks the security headers
+// from public/_headers. The run fails if any of that does not hold.
 
 const SITE_URL = (process.env.SITE_URL ?? "https://devpilotx.me").replace(/\/$/, "");
-const EXPECTED_BUILD = process.env.EXPECTED_BUILD ?? "";
+const EXPECTED_BUILD = (process.env.EXPECTED_BUILD ?? "").slice(0, 12);
 const ATTEMPTS = Number(process.env.SMOKE_ATTEMPTS ?? 10);
 const DELAY_MS = 15_000;
 
-const ASSET = /\b(?:href|src)="(\/[^"/][^"]*\.(?:css|js|png|jpg|jpeg|svg|ico|woff2?|ttf))"/g;
+const ASSET = /\b(?:href|src)="(\/[^"/][^"]*\.(?:css|js|png|jpg|jpeg|webp|svg|ico|woff2?|ttf))"/g;
+const PAGES = [
+  "/projects/",
+  "/projects/techcyme/",
+  "/blog/",
+  "/sitemap.xml",
+  "/robots.txt",
+  "/rss.xml",
+  "/llms.txt",
+  "/og.png",
+  "/manifest.webmanifest",
+];
+const HEADERS = ["content-security-policy", "strict-transport-security", "x-frame-options", "x-content-type-options"];
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -26,18 +38,27 @@ async function check() {
     return [`home page is not the expected build yet (${EXPECTED_BUILD})`];
   }
 
-  const assets = [...new Set([...html.matchAll(ASSET)].map((match) => match[1]))];
-  if (assets.length === 0) return ["home page references no assets"];
-
   const failures = [];
+  for (const header of HEADERS) {
+    if (!response.headers.get(header)) failures.push(`home page has no ${header} header`);
+  }
+
+  const assets = [...new Set([...html.matchAll(ASSET)].map((match) => match[1]))];
+  if (assets.length === 0) failures.push("home page references no assets");
+
   await Promise.all(
-    assets.map(async (asset) => {
-      const assetResponse = await fetch(fresh(`${SITE_URL}${asset}`), { method: "HEAD" });
-      if (assetResponse.status !== 200) failures.push(`${asset} returned ${assetResponse.status}`);
+    [...assets, ...PAGES].map(async (url) => {
+      const assetResponse = await fetch(fresh(`${SITE_URL}${url}`), { method: "GET" });
+      if (assetResponse.status !== 200) failures.push(`${url} returned ${assetResponse.status}`);
     })
   );
 
-  if (failures.length === 0) console.log(`smoke: ${SITE_URL} and ${assets.length} assets returned 200`);
+  const missing = await fetch(fresh(`${SITE_URL}/this-page-does-not-exist/`));
+  if (missing.status !== 404) failures.push(`a made-up URL returned ${missing.status}, expected 404`);
+
+  if (failures.length === 0) {
+    console.log(`smoke: ${SITE_URL}, ${assets.length} assets and ${PAGES.length} pages and files returned 200`);
+  }
   return failures;
 }
 

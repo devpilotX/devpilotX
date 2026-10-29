@@ -1,5 +1,6 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+/* Class names are only read from src/. Without this, Tailwind also scans
+   folders such as .kiro and generates CSS for text it finds there. */
+@import "tailwindcss" source("../");
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -120,21 +121,34 @@
     @apply bg-background text-foreground;
   }
 
-  /* Shiki dual theme support */
-  .shiki,
-  .shiki span {
-    color: var(--shiki-light);
-    background-color: transparent;
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
-  .dark .shiki,
-  .dark .shiki span {
+  /* Code highlighted at build time by rehype-pretty-code with two themes.
+     Each token carries both colours; the active theme picks one. */
+  [data-rehype-pretty-code-figure] {
+    @apply my-6 overflow-hidden rounded-xl border border-border;
+  }
+
+  [data-rehype-pretty-code-title] {
+    @apply m-0! border-b border-border bg-muted/50 px-3 py-2 text-xs! font-medium text-foreground!;
+  }
+
+  code[data-theme],
+  code[data-theme] span {
+    color: var(--shiki-light);
+  }
+
+  .dark code[data-theme],
+  .dark code[data-theme] span {
     color: var(--shiki-dark);
-    background-color: transparent;
   }
 
 .prose pre {
-    @apply leading-relaxed bg-transparent! font-mono!;
+    @apply my-0! rounded-none! leading-relaxed bg-transparent! font-mono! text-foreground!;
   }
 
   .prose code {
@@ -239,4 +253,114 @@
     @apply border-b-0;
   }
 
+}
+
+/* Fade-in used by <BlurFade>. "backwards" holds the start state during the
+   delay and leaves no filter or transform behind once it finishes, so the
+   element does not become a containing block for anything inside it. */
+@keyframes blur-fade-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(-6px);
+  }
+}
+
+.blur-fade {
+  animation: blur-fade-in 0.4s ease-out var(--blur-fade-delay, 0s) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blur-fade {
+    animation: none;
+  }
+}
+
+/* Dock magnification: the hovered icon grows and its neighbours grow a
+   little. Pointer devices only, and never with reduced motion. The button
+   scales, not the list item, so the label above it keeps its size. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .dock-item > .dock-button {
+    transform-origin: 50% 100%;
+    transition:
+      transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      background-color 150ms,
+      color 150ms;
+  }
+
+  .dock-item:hover > .dock-button {
+    transform: scale(1.25);
+  }
+
+  .dock-item:hover + .dock-item > .dock-button,
+  .dock-item:has(+ .dock-item:hover) > .dock-button {
+    transform: scale(1.1);
+  }
+}
+
+/* Dock labels. They show on hover and on keyboard focus, stay while the
+   pointer moves onto them (the ::before strip bridges the gap), and hide on
+   Escape through data-tips="off" (see dock-escape.tsx). */
+.dock-tip {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 50%;
+  z-index: 40;
+  translate: -50% 4px;
+  opacity: 0;
+  visibility: hidden;
+  white-space: nowrap;
+  border-radius: 0.75rem;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  box-shadow: 0 10px 40px -10px rgb(0 0 0 / 0.3);
+  transition:
+    opacity 150ms ease-out,
+    translate 150ms ease-out,
+    visibility 150ms;
+}
+
+.dock-tip::before {
+  content: "";
+  position: absolute;
+  inset: 100% 0 auto;
+  height: 14px;
+}
+
+.dock-tip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  translate: -50% 0;
+  border: 6px solid transparent;
+  border-top-color: var(--primary);
+}
+
+.dock-item:has(:focus-visible) > .dock-tip {
+  opacity: 1;
+  visibility: visible;
+  translate: -50% 0;
+}
+
+@media (hover: hover) {
+  .dock-item:hover > .dock-tip {
+    opacity: 1;
+    visibility: visible;
+    translate: -50% 0;
+  }
+}
+
+[data-dock][data-tips="off"] .dock-tip {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-tip {
+    transition: none;
+  }
 }

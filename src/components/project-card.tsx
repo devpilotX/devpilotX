@@ -1,143 +1,78 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
-
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import Markdown from "react-markdown";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
+import type { FeaturedProject } from "@/data/projects";
+import { ProjectStatus } from "@/components/project-status";
+import { ScreenshotImage } from "@/components/screenshot";
+import { cn } from "@/lib/utils";
 
-function ProjectImage({ src, alt }: { src: string; alt: string }) {
-  const [imageError, setImageError] = useState(false);
-
-  if (!src || imageError) {
-    return <div className="w-full h-48 bg-muted" />;
-  }
-
-  return (
-    <img
-      src={src}
-      alt={alt}
-      className="w-full h-48 object-cover"
-      onError={() => setImageError(true)}
-    />
-  );
-}
-
-interface Props {
-  title: string;
-  href?: string;
-  description: string;
-  dates: string;
-  tags: readonly string[];
-  link?: string;
-  image?: string;
-  video?: string;
-  links?: readonly {
-    icon: React.ReactNode;
-    type: string;
-    href: string;
-  }[];
+interface ProjectCardProps {
+  project: FeaturedProject;
+  /** Heading level inside the card, so it fits the page outline. */
+  headingLevel?: "h2" | "h3";
   className?: string;
 }
 
-export function ProjectCard({
-  title,
-  href,
-  description,
-  dates,
-  tags,
-  link,
-  image,
-  video,
-  links,
-  className,
-}: Props) {
+/**
+ * The project title is the card's only main link and is stretched over the
+ * whole card. The live site link sits above it, so both stay clickable and
+ * a screen reader hears each link once.
+ */
+// Links to project pages do not prefetch: each project page preloads its
+// large first screenshot, and a prefetch would download it on this page.
+export function ProjectCard({ project, headingLevel = "h3", className }: ProjectCardProps) {
+  const Heading = headingLevel;
+
   return (
-    <div
+    <article
       className={cn(
-        "flex flex-col h-full border border-border rounded-xl overflow-hidden hover:ring-2 cursor-pointer hover:ring-muted transition-all duration-200",
+        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow duration-200 has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ring hover:shadow-lg hover:shadow-primary/5",
         className
       )}
     >
-      <div className="relative shrink-0">
-        <Link
-          href={href || "#"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block"
-        >
-          {video ? (
-            <video
-              src={video}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-48 object-cover"
-            />
-          ) : image ? (
-            <ProjectImage src={image} alt={title} />
-          ) : (
-            <div className="w-full h-48 bg-muted" />
+      <div className="relative aspect-16/10 overflow-hidden border-b border-border bg-muted">
+        <ScreenshotImage
+          shot={project.cover}
+          sizes="(min-width: 640px) 330px, calc(100vw - 48px)"
+          className="size-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+        />
+      </div>
+      <div className="flex flex-1 flex-col gap-3 p-5">
+        <div className="flex items-center justify-between gap-2">
+          <ProjectStatus status={project.status} />
+          <span className="text-xs tabular-nums text-muted-foreground">{project.dates}</span>
+        </div>
+        <div className="flex flex-col gap-1">
+          <Heading className="text-lg font-semibold leading-tight">
+            <Link
+              href={`/projects/${project.slug}/`}
+              prefetch={false}
+              className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
+            >
+              {project.title}
+            </Link>
+          </Heading>
+          <p className="text-sm font-medium text-foreground/80">{project.tagline}</p>
+        </div>
+        <p className="text-sm leading-relaxed text-muted-foreground">{project.summary}</p>
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-2 text-sm">
+          <span className="inline-flex items-center gap-1 font-medium" aria-hidden="true">
+            See the project
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" />
+          </span>
+          {project.liveUrl && (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative z-10 inline-flex min-h-6 items-center gap-1 rounded-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            >
+              {new URL(project.liveUrl).host}
+              <ArrowUpRight className="size-3.5" aria-hidden="true" />
+              <span className="sr-only">(opens in a new tab)</span>
+            </a>
           )}
-        </Link>
-        {links && links.length > 0 && (
-          <div className="absolute top-2 right-2 flex flex-wrap gap-2">
-            {links.map((link, idx) => (
-              <Link
-                href={link.href}
-                key={idx}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Badge
-                  className="flex items-center gap-1.5 text-xs bg-black text-white hover:bg-black/90"
-                  variant="default"
-                >
-                  {link.icon}
-                  {link.type}
-                </Badge>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-      <div className="p-6 flex flex-col gap-3 flex-1">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex flex-col gap-1">
-            <h3 className="font-semibold">{title}</h3>
-            <time className="text-xs text-muted-foreground">{dates}</time>
-          </div>
-          <Link
-            href={href || "#"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
-            aria-label={`Open ${title}`}
-          >
-            <ArrowUpRight className="h-4 w-4" aria-hidden />
-          </Link>
         </div>
-        <div className="text-xs flex-1 prose max-w-full text-pretty font-sans leading-relaxed text-muted-foreground dark:prose-invert">
-          <Markdown>{description}</Markdown>
-        </div>
-        {tags && tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-auto">
-            {tags.map((tag) => (
-              <Badge
-                key={tag}
-                className="text-[11px] font-medium border border-border h-6 w-fit px-2"
-                variant="outline"
-              >
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
       </div>
-    </div>
+    </article>
   );
 }

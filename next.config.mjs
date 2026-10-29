@@ -9,14 +9,21 @@ const siteUrl = (process.env.PAGES_BASE_URL || "https://devpilotx.me").replace(
   "https://"
 );
 
+// Cloudflare Pages sets CF_PAGES_COMMIT_SHA and GitHub Actions sets
+// GITHUB_SHA. Using the commit as the build ID means every build of the same
+// commit matches, so the post-deploy check can tell when the live site runs
+// it. Local builds keep Next.js's random ID.
+const commit = process.env.CF_PAGES_COMMIT_SHA || process.env.GITHUB_SHA || "";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // The site is hosted on GitHub Pages, so it is built as plain static files.
+  // Cloudflare Pages serves the site as plain static files from out/.
   output: "export",
-  // GitHub Pages serves /blog/ from blog/index.html without extra rewrites.
+  // /blog/ is served from blog/index.html without extra rewrites.
   trailingSlash: true,
   basePath,
+  generateBuildId: async () => (commit ? commit.slice(0, 12) : null),
   images: {
     unoptimized: true,
   },

@@ -1,0 +1,33 @@
+# Response headers for Cloudflare Pages, copied to out/_headers by the build.
+# Syntax: https://developers.cloudflare.com/pages/configuration/headers/
+#
+# Cache-Control is left at the Pages default (max-age=0, must-revalidate) for
+# pages. Adding no-transform there would stop Cloudflare Web Analytics, which
+# is injected into the HTML at the edge.
+#
+# The CSP allows inline scripts because a statically exported Next.js page
+# carries its data in inline scripts. static.cloudflareinsights.com is the
+# Web Analytics beacon. The Google entries are the ones Google lists for
+# Analytics without ads features:
+# https://developers.google.com/tag-platform/security/guides/csp
+# Same-origin covers /cdn-cgi scripts and reporting.
+
+/*
+  Strict-Transport-Security: max-age=63072000
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()
+  Cross-Origin-Opener-Policy: same-origin
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; font-src 'self'; connect-src 'self' https://cloudflareinsights.com https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+
+# File names under /_next/static contain a content hash, so they never change.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Keep preview and pages.dev copies of the site out of search results.
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex

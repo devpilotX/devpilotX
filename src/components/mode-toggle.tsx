@@ -1,23 +1,27 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { cn } from "@/lib/utils";
+import type { ComponentProps } from "react";
 
-export function ModeToggle({ className }: { className?: string }) {
-  const { theme, setTheme } = useTheme();
+// The icon is picked by CSS from the class next-themes sets on <html>, so the
+// server HTML and the first client render always match. Extra props and the
+// ref are passed through so a tooltip trigger can wrap the button.
+export function ModeToggle({ onClick, ...props }: ComponentProps<"button">) {
+  const { resolvedTheme, setTheme } = useTheme();
 
   return (
-    <Button
+    <button
       type="button"
-      variant="link"
-      size="icon"
-      className={cn(className)}
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      aria-label="Toggle dark mode"
+      {...props}
+      onClick={(event) => {
+        onClick?.(event);
+        setTheme(resolvedTheme === "dark" ? "light" : "dark");
+      }}
     >
-      <SunIcon className="h-full w-full" />
-      <MoonIcon className="hidden h-full w-full" />
-    </Button>
+      <Moon className="size-5 dark:hidden" aria-hidden="true" />
+      <Sun className="hidden size-5 dark:block" aria-hidden="true" />
+    </button>
   );
 }

@@ -1,0 +1,7 @@
+# Rules for Cloudflare Pages, copied to out/_redirects by the build.
+# Syntax: https://developers.cloudflare.com/pages/configuration/redirects/
+#
+# Search Console reads its verification file at this exact address and does
+# not follow redirects. Pages normally redirects /name.html to /name, so this
+# rule serves the file in place with a 200.
+/google3419091e9a1248e3.html /google3419091e9a1248e3 200

@@ -1,14 +1,17 @@
-import Link from "next/link";
+import { Mail } from "lucide-react";
+import { EmailOff } from "@/components/email-off";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 import { DATA } from "@/data/resume";
 
+const linkClass =
+  "rounded-sm font-medium text-blue-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring dark:text-blue-400";
+
 export default function ContactSection() {
+  const { LinkedIn, X, GitHub } = DATA.contact.social;
+
   return (
-    <div className="border rounded-xl p-10 relative">
-      <div className="absolute -top-4 border bg-primary z-10 rounded-xl px-4 py-1 left-1/2 -translate-x-1/2">
-        <span className="text-background text-sm font-medium">Contact</span>
-      </div>
-      <div className="absolute inset-0 top-0 left-0 right-0 h-1/2 rounded-xl overflow-hidden">
+    <div className="relative rounded-xl border p-8 sm:p-10">
+      <div className="absolute inset-0 h-1/2 overflow-hidden rounded-xl" aria-hidden="true">
         <FlickeringGrid
           className="h-full w-full"
           squareSize={2}
@@ -19,41 +22,39 @@ export default function ContactSection() {
           }}
         />
       </div>
-      <div className="relative flex flex-col items-center gap-4 text-center">
-        <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-          Get in Touch
+      <div className="relative flex flex-col items-center gap-5 text-center">
+        <h2 id="contact-heading" className="text-3xl font-bold tracking-tighter sm:text-5xl">
+          Get in touch
         </h2>
-        <p className="mx-auto max-w-lg text-muted-foreground text-balance">
-          Have a project in mind, a job opening, or just want to talk about
-          something you are building? Email me at{" "}
-          <Link
-            href={DATA.contact.social.Email.url}
-            className="text-blue-500 hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm break-all"
+        <p className="mx-auto max-w-lg text-balance text-muted-foreground">
+          Have a project in mind, a job opening, or something you are building and want to talk
+          about? Email is the best way to reach me.
+        </p>
+        <EmailOff>
+          <a
+            href={`mailto:${DATA.contact.email}`}
+            className="inline-flex h-11 max-w-full items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
-            {DATA.contact.email}
-          </Link>{" "}
-          or send me a message on{" "}
-          <Link
-            href={DATA.contact.social.LinkedIn.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
-          >
+            <Mail className="size-4 flex-none" aria-hidden="true" />
+            <span className="truncate">{DATA.contact.email}</span>
+          </a>
+        </EmailOff>
+        <p className="text-sm text-muted-foreground">
+          You can also message me on{" "}
+          <a href={LinkedIn.url} target="_blank" rel="me noopener noreferrer" className={linkClass}>
             LinkedIn
-          </Link>{" "}
+          </a>{" "}
           or{" "}
-          <Link
-            href={DATA.contact.social.X.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
-          >
+          <a href={X.url} target="_blank" rel="me noopener noreferrer" className={linkClass}>
             X
-          </Link>
+          </a>
+          , or follow my work on{" "}
+          <a href={GitHub.url} target="_blank" rel="me noopener noreferrer" className={linkClass}>
+            GitHub
+          </a>
           .
         </p>
       </div>
     </div>
   );
 }
-

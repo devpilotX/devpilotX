@@ -1,63 +1,25 @@
-"use client";
-
-import { AnimatePresence, motion, useInView, Variants } from "motion/react";
-import { useRef } from "react";
+import { cn } from "@/lib/utils";
+import type { CSSProperties, ElementType, ReactNode } from "react";
 
 interface BlurFadeProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
-  variant?: {
-    hidden: { y: number };
-    visible: { y: number };
-  };
-  duration?: number;
+  /** Seconds to wait before the fade starts. */
   delay?: number;
-  yOffset?: number;
-  inView?: boolean;
-  inViewMargin?: string;
-  blur?: string;
+  as?: ElementType;
 }
-const BlurFade = ({
-  children,
-  className,
-  variant,
-  duration = 0.4,
-  delay = 0,
-  yOffset = 6,
-  inView = false,
-  inViewMargin = "-50px",
-  blur = "6px",
-}: BlurFadeProps) => {
-  const ref = useRef(null);
-  const inViewResult = useInView(ref, {
-    once: true,
-    ...(inViewMargin ? { margin: inViewMargin as any } : {})
-  });
-  const isInView = !inView || inViewResult;
-  const defaultVariants: Variants = {
-    hidden: { y: -yOffset, opacity: 0, filter: `blur(${blur})` },
-    visible: { y: 0, opacity: 1, filter: `blur(0px)` },
-  };
-  const combinedVariants = variant || defaultVariants;
-  return (
-    <AnimatePresence>
-      <motion.div
-        ref={ref}
-        initial="hidden"
-        animate={isInView ? "visible" : "hidden"}
-        exit="hidden"
-        variants={combinedVariants}
-        transition={{
-          delay: 0.04 + delay,
-          duration,
-          ease: "easeOut",
-        }}
-        className={className}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
-  );
-};
 
-export default BlurFade;
+/**
+ * Fades and unblurs its children once on page load. It is plain CSS (see
+ * .blur-fade in globals.css), so content shows before any JavaScript runs,
+ * and the animation is skipped for people who ask for reduced motion.
+ */
+export default function BlurFade({ children, className, delay = 0, as: Tag = "div" }: BlurFadeProps) {
+  const style = { "--blur-fade-delay": `${(0.04 + delay).toFixed(2)}s` } as CSSProperties;
+
+  return (
+    <Tag className={cn("blur-fade", className)} style={style}>
+      {children}
+    </Tag>
+  );
+}

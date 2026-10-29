@@ -1,35 +1,52 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { Home } from "lucide-react";
+import { FolderKanban, Home, NotebookIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+export const metadata: Metadata = {
+  title: "Page not found",
+  robots: { index: false, follow: true },
+};
+
+const linkClass =
+  "inline-flex h-10 items-center gap-2 rounded-full border border-border bg-background px-4 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
 export default function NotFound() {
-    return (
-        <div className="min-h-[calc(100vh-12rem)] flex flex-col">
-            <div className="flex-1 flex items-center justify-center p-8">
-                <div className="flex flex-col items-center text-center max-w-md relative">
-                    <h1 className="text-[200px] font-semibold font-mono bg-linear-to-b from-primary/30 to-secondary/10 text-transparent bg-clip-text absolute -top-40 left-1/2 -translate-x-1/2 mask-[linear-gradient(to_bottom,black,black_20%,transparent_80%)] tracking-tighter uppercase [-webkit-text-stroke:3px_hsl(var(--primary)/0.6)]">
-                        404
-                    </h1>
-                    <h2 className="text-4xl tracking-tight font-semibold text-foreground mb-2">
-                        Page Not Found
-                    </h2>
-                    <p className="text-muted-foreground mb-8 text-balance tracking-tight font-medium">
-                        The page you&apos;re looking for doesn&apos;t exist or may have been
-                        moved.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                        <Link href="/">
-                            <Button variant="outline" className="gap-2 cursor-pointer">
-                                <Home className="h-4 w-4" />
-                                Go to Home
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className="flex min-h-[calc(100vh-16rem)] flex-col">
+      <div className="flex flex-1 items-center justify-center p-8">
+        <div className="relative flex max-w-md flex-col items-center text-center">
+          <p
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 bg-linear-to-b from-primary/30 to-secondary/10 bg-clip-text font-mono text-[200px] font-semibold uppercase tracking-tighter text-transparent mask-[linear-gradient(to_bottom,black,black_20%,transparent_80%)]"
+          >
+            404
+          </p>
+          <h1 className="mb-2 text-4xl font-semibold tracking-tight text-foreground">Page not found</h1>
+          <p className="mb-8 text-balance font-medium tracking-tight text-muted-foreground">
+            The page you are looking for does not exist or has moved. These might help:
+          </p>
+          <ul className="flex flex-col gap-3 sm:flex-row">
+            <li>
+              <Link href="/" className={linkClass}>
+                <Home className="size-4" aria-hidden="true" />
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link href="/projects/" className={linkClass}>
+                <FolderKanban className="size-4" aria-hidden="true" />
+                Projects
+              </Link>
+            </li>
+            <li>
+              <Link href="/blog/" className={linkClass}>
+                <NotebookIcon className="size-4" aria-hidden="true" />
+                Blog
+              </Link>
+            </li>
+          </ul>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
-
-

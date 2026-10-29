@@ -1,23 +1,24 @@
 ---
 title: "How this site is built"
 publishedAt: "2026-09-26"
-summary: "Next.js as a static export, content in MDX, and a GitHub Actions workflow that deploys to GitHub Pages on every push to main."
+updatedAt: "2026-10-30"
+summary: "Next.js as a static export, content in MDX, Cloudflare Pages publishing on every push, and checks that catch broken links and missing search tags."
 ---
 
-This site started from the open source [Magic UI portfolio template](https://github.com/magicuidesign/portfolio). I kept the design and changed what sits underneath so it could run on GitHub Pages instead of Vercel.
+This site started from the open source [Magic UI portfolio template](https://github.com/magicuidesign/portfolio). I kept the design and changed what sits underneath so it could run as plain static files, first on GitHub Pages and now on Cloudflare Pages.
 
 ## The stack
 
 - **Next.js 16** with the App Router
-- **Tailwind CSS v4** and a few shadcn/ui components
-- **Motion** for the blur and fade animations
+- **Tailwind CSS v4**, with colour tokens from shadcn/ui
 - **Content Collections** to turn MDX files into typed posts
+- **rehype-pretty-code** to highlight code once, at build time
 
-All of the personal data lives in one file, `src/data/resume.tsx`. Projects, education, links and skills are plain objects there, and the pages just map over them.
+All of the personal data lives in two files: one for my profile and one for my projects. Projects, education, links and skills are plain objects there, and the pages just map over them.
 
 ## Static export
 
-GitHub Pages only serves files. There is no Node server, so the whole site has to be HTML, CSS and JavaScript by the time it is uploaded. Next.js supports this with one line:
+A static host only serves files. There is no Node server, so the whole site has to be HTML, CSS and JavaScript by the time it is uploaded. Next.js supports this with one line:
 
 ```js title="next.config.mjs"
 const nextConfig = {
@@ -29,13 +30,19 @@ const nextConfig = {
 
 That change had a few side effects.
 
-1. **No request data on the server.** The blog index used to read `?page=2` from `searchParams` on the server. In a static build there is no request, so the list moved into a client component that reads the page number with `useSearchParams`.
-2. **Open Graph images are rendered at build time.** They used to run on the edge and fetch fonts over the network. Now they read the font files and my photo straight from disk while the site builds.
-3. **No custom headers.** `headers()` in the Next config does nothing on a static host, so I removed it rather than keep config that looks like it works.
+1. **No request data on the server.** In a static build there is no request to read, so every page has to be complete at build time. The blog index lists every post in its HTML for that reason, so search engines see the links without running any JavaScript.
+2. **Open Graph images are rendered at build time.** They used to run on the edge and fetch fonts over the network. Now they read the font files, the mascot and each project's screenshot straight from disk while the site builds.
+3. **Headers live in a file.** `headers()` in the Next config does nothing on a static host. Cloudflare Pages reads a `_headers` file instead, so the security headers and the long cache rule for hashed files live there.
+
+## Less JavaScript
+
+Most of the page never changes after it loads, so most of it is rendered on the server and sent as HTML. The fade-in on each section is a CSS animation, which also means it switches off for anyone who asks their system for reduced motion. Code blocks in posts are highlighted during the build, so a post does not download a highlighter.
 
 ## Deploying
 
-A single workflow in `.github/workflows` handles everything. On a pull request it runs the linter, the type checker, a full build and a link check over the exported HTML. On a push to `main` it also publishes the `out` folder with `actions/deploy-pages`, then loads the live home page and requests every stylesheet, script and image it references.
+Cloudflare Pages builds the site from the `main` branch on every push and publishes the `out` folder. A GitHub Actions workflow runs the linter, the type checker, a full build, a link check and a search check over the exported HTML on every pull request. The search check reads each page the way a crawler would: one title, one description, one `h1`, a canonical URL, sharing tags, valid structured data, and a sitemap that lists exactly the pages that should be found.
+
+After a push to `main`, the same workflow waits until the live home page carries that commit's build ID, then requests every stylesheet, script and image it references.
 
 That last step exists because of a mistake I made early on. The site first went up under `devpilotx.github.io/devpilotX`, so every asset URL started with `/devpilotX`. When I moved to `devpilotx.me` the HTML still pointed there, the build passed, and the live page loaded without any of its CSS or JavaScript. Now a wrong base path fails the link check, and a broken deploy fails the smoke test.
 

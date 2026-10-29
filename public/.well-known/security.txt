@@ -1,0 +1,4 @@
+Contact: mailto:connect@devpilotx.me
+Expires: 2027-10-29T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://devpilotx.me/.well-known/security.txt
