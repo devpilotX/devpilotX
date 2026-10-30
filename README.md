@@ -12,24 +12,15 @@
 
 [LinkedIn](https://www.linkedin.com/in/dipanshu03j) &nbsp;·&nbsp; [X](https://x.com/devpilotx) &nbsp;·&nbsp; [Instagram](https://www.instagram.com/devpilotx) &nbsp;·&nbsp; [YouTube](https://www.youtube.com/@devpilotx)
 
-<br>
-
-<a href="https://devpilotx.me/">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/devpilotX/devpilotX/raw/main/.github/assets/home-dark.webp">
-    <img src=".github/assets/home-light.webp" width="100%" alt="The devpilotx.me home page">
-  </picture>
-</a>
-
 </div>
 
-## About me
+<br>
 
-I work under the name DevPilotX, from India. My hands-on tools are Python, shell scripts, Linux, Docker and the servers I run on AWS and Oracle Cloud. The rest is making the calls and getting things shipped, whether I build it myself, lead a small team, or use AI to move fast.
+<h2 align="center">About me</h2>
 
-I finished my BCA at Maharishi Markandeshwar (Deemed to be University), Mullana, in 2024.
+I work under the name DevPilotX. My hands-on tools are Python, shell scripts, Linux, Docker and the servers I run on AWS and Oracle Cloud. The rest is making the calls and getting things shipped, whether I build it myself, lead a small team, or use AI to move fast.
 
-## What I'm building
+<h2 align="center">What I'm building</h2>
 
 | Project | What it is | Status |
 | :-- | :-- | :-- |
@@ -40,11 +31,11 @@ I finished my BCA at Maharishi Markandeshwar (Deemed to be University), Mullana,
 
 All 15 projects are on [devpilotx.me/projects](https://devpilotx.me/projects/).
 
-## Tools I use
+<h2 align="center">Tools I use</h2>
 
 <img src="https://skillicons.dev/icons?i=python,bash,linux,git,github,docker,postgres,aws" alt="Python, Bash, Linux, Git, GitHub, Docker, PostgreSQL and AWS">
 
-## About this repo
+<h2 align="center">About this repo</h2>
 
 This is the code behind [devpilotx.me](https://devpilotx.me/). It's a Next.js site exported as plain files and hosted on Cloudflare Pages, and a push to `main` goes live in about a minute.
 
