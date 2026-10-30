@@ -10,3 +10,10 @@
 # at their old address for up to a week, and redirects run before that, so
 # this rule makes sure the old photo is never served again.
 /me.jpg /mascot-avatar.png 301
+
+# Removed blog posts. Old links go to the blog page instead of an error,
+# and Pages can't serve a copy left over from an earlier deploy.
+/blog/how-this-site-is-built /blog/ 301
+/blog/nextjs-docker-oracle-cloud /blog/ 301
+/blog/how-this-site-is-built/* /blog/ 301
+/blog/nextjs-docker-oracle-cloud/* /blog/ 301

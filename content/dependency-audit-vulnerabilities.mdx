@@ -1,0 +1,111 @@
+---
+title: "My audit found 101 vulnerabilities. Only a few mattered"
+publishedAt: "2026-10-30"
+summary: "pnpm audit flagged 101 vulnerabilities in this site, 4 of them critical. Here is how I found the few that mattered, with steps for npm, pip, cargo and Go."
+---
+
+I ran `pnpm audit` on [this site](/) and got 101 vulnerabilities back: 4 critical, 62 high, 30 moderate and 5 low. (pnpm reads the same advisory data as `npm audit`, though npm counts it per package, so its number would have been different.) For a portfolio made of static files, it looked absurd. It was also partly right.
+
+This is the order I went through them in. The examples are JavaScript, but the steps work the same for any language with a package manager, and the commands for Python, Rust and Go are at the end.
+
+## 1. Count packages, not advisories
+
+A list of 101 is hard to reason about. Grouped by package it came down to 21 packages, and Next.js alone had 33 advisories.
+
+```bash
+# pnpm: advisories per package, most first
+pnpm audit --json | jq -r '.advisories[].module_name' | sort | uniq -c | sort -rn
+
+# npm 7 or newer: every package with an advisory
+npm audit --json | jq -r '.vulnerabilities | keys[]'
+```
+
+Most of these packages aren't ones you installed. They come in through your dependencies, so one upgrade near the top of the tree can clear a dozen lines at once. That comes up again in step 4.
+
+## 2. Ask what an attacker would need
+
+A vulnerability only matters if someone can get input to the code that has it. So for each package I asked two things: where does this code run, and who can reach it there?
+
+The four critical ones were all remote code execution in the Next.js server: in the `use cache` feature, in the image optimisation API (two of them), and on servers running Windows. This site is built with `output: "export"`, so Next.js runs once during the build and Cloudflare serves plain HTML files. In production there is no Next.js server for anyone to attack.
+
+The production-only flag doesn't do this sorting for you. `pnpm audit --prod` still listed 69 of the 101, because Next.js sits in `dependencies`, and npm's `--omit=dev` draws the same line. Both go by what `package.json` says, not by what runs on a server.
+
+## 3. Include your own machine
+
+Production isn't the only place your code runs.
+
+One of those critical advisories, [GHSA-p293-qw3h-jr36](https://github.com/advisories/GHSA-p293-qw3h-jr36), covers Next.js servers on Windows, and `pnpm dev` on my Windows PC is one. By default it also listens on every network interface, not only `localhost`; that's what the `Network:` address it prints means. A smaller one, [GHSA-39w2-rjm5-chcv](https://github.com/advisories/GHSA-39w2-rjm5-chcv), means a website you visit while `next dev` is running can read data from it, such as where the project sits on disk and bits of source code from error messages.
+
+Neither could touch the live site. Both could touch my PC, and if you only look at what runs in production, you miss exactly these. Until you can upgrade, you can at least keep other devices on your network away from the dev server by binding it to `localhost`:
+
+```json title="package.json"
+{
+  "scripts": {
+    "dev": "next dev -H localhost"
+  }
+}
+```
+
+That doesn't help with the second advisory, because the website doing the reading runs in your own browser. Only the upgrade fixes that one.
+
+## 4. Upgrade the package at the top
+
+Before patching anything by hand, find out which of your own dependencies pulls a package in:
+
+```bash
+pnpm why toml
+npm explain toml
+```
+
+On this site that showed `toml` arriving through `@content-collections/mdx`, then `mdx-bundler`, then `remark-mdx-frontmatter`.
+
+Then upgrade at the top. For me that meant Next.js from 16.1.7 to 16.4.3 (and `eslint-config-next` to match), plus `pnpm update` for everything else within the ranges `package.json` already allows. That took the count from 101 to 11. Moving `@content-collections/core` from 0.13 to 0.15 brought it to 8.
+
+Be careful with `npm audit fix --force`. It's allowed to install versions outside your declared ranges, major versions included, which is a good way to break a build. Run `npm audit fix --dry-run` first and read what it would change.
+
+Whatever you upgrade, build and test before you push. I also opened the built site in Cloudflare's local preview and went through every type of page, because a passing build doesn't prove that navigation still works.
+
+## 5. Check whether a fix exists yet
+
+The last 8 were in packages that even the newest versions of their parents still use:
+
+- `toml` (five advisories) and `uuid`, through `mdx-bundler`, which compiles the posts on this blog
+- `zod` 3, through `content-collections`
+- `postcss-selector-parser`, which `@tailwindcss/typography` pins to an exact version
+
+All of them run during the build and only read files from this repository. To use any of them, someone would first have to get a malicious post or stylesheet into my repo, and anyone who can do that has easier ways to do damage. The TOML parser doesn't even get called, since every post here uses YAML front matter. I also searched the built site for code from these packages and found none.
+
+You can still force a newer version: `overrides` in npm's `package.json`, `overrides` in `pnpm-workspace.yaml` (`pnpm audit --fix` writes them for you), or `resolutions` in Yarn. For npm, put the package name and the fixed version from the advisory in place of these:
+
+```json title="package.json"
+{
+  "overrides": {
+    "package-name": "fixed-version"
+  }
+}
+```
+
+That makes the parent run a version it was never tested with, so I only do it when the vulnerable code is reachable and the parent is slow to update. Here the code wasn't reachable, so I left them alone.
+
+## 6. Write down what you accepted
+
+An alert left open without a note means someone, probably you in six months, has to work all of this out again. On GitHub I dismissed each of the 8 Dependabot alerts as a tolerable risk, with a short comment saying why.
+
+Dependabot alerts were also off on this repository, which is how four critical advisories sat there without anyone noticing. If yours are off, turn them on in the repository's security settings, or with the GitHub CLI:
+
+```bash
+gh api -X PUT repos/OWNER/REPO/vulnerability-alerts
+```
+
+## The same steps in other languages
+
+| Tool | Audit | Why is it installed? |
+| --- | --- | --- |
+| npm | `npm audit` | `npm explain <pkg>` |
+| pnpm | `pnpm audit` | `pnpm why <pkg>` |
+| Yarn | `yarn npm audit --recursive` | `yarn why <pkg>` |
+| Python | `pip-audit -r requirements.txt` | `pipdeptree -r -p <pkg>` |
+| Rust | `cargo audit` | `cargo tree -i <crate>` |
+| Go | `govulncheck ./...` | `go mod why -m <module>` |
+
+On Yarn 2 and later, keep `--recursive`: without it, `yarn npm audit` only checks your direct dependencies. On Yarn 1 the command is `yarn audit`. `pip-audit`, `pipdeptree`, `cargo-audit` and `govulncheck` are separate installs. Go gets step 2 done for free: `govulncheck` checks whether your code actually calls the vulnerable function, and lists the ones it doesn't call separately, as informational.
