@@ -2,7 +2,7 @@
 
 <a href="https://devpilotx.me/"><img src="public/mascot.svg" width="110" height="110" alt="DevPilotX mascot"></a>
 
-# Hi, I'm Dipanshu Kumar
+# Hi, I'm Dipanshu
 
 **I take a problem and build the software that solves it.**
 
@@ -22,6 +22,8 @@ I work under the name DevPilotX. My hands-on tools are Python, shell scripts, Li
 
 <h2 align="center">What I'm building</h2>
 
+<div align="center">
+
 | Project | What it is | Status |
 | :-- | :-- | :-- |
 | [**Techcyme**](https://devpilotx.me/projects/techcyme/) | Website and CRM for a digital marketing studio | ![Live](https://img.shields.io/badge/Live-16A34A?style=flat-square) |
@@ -29,11 +31,15 @@ I work under the name DevPilotX. My hands-on tools are Python, shell scripts, Li
 | [**Maanak**](https://devpilotx.me/projects/maanak/) | Checking package labels, with the evidence kept | ![Prototype](https://img.shields.io/badge/Prototype-D97706?style=flat-square) |
 | [**quantsys**](https://devpilotx.me/projects/quantsys/) | A rules-based trading system for Indian stocks | ![Paper trading](https://img.shields.io/badge/Paper%20trading-2563EB?style=flat-square) |
 
+</div>
+
 All 15 projects are on [devpilotx.me/projects](https://devpilotx.me/projects/).
 
 <h2 align="center">Tools I use</h2>
 
-<img src="https://skillicons.dev/icons?i=python,bash,linux,git,github,docker,postgres,aws" alt="Python, Bash, Linux, Git, GitHub, Docker, PostgreSQL and AWS">
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python,bash,linux,git,github,docker,postgres,aws" alt="Python, Bash, Linux, Git, GitHub, Docker, PostgreSQL and AWS">
+</p>
 
 <h2 align="center">About this repo</h2>
 
