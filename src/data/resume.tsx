@@ -36,7 +36,7 @@ const supportOptions: SupportOption[] = [
 ];
 
 export const DATA = {
-  name: "Dipanshu Kumar",
+  name: "Dipanshu",
   firstName: "Dipanshu",
   brand: "DevPilotX",
   initials: "DK",
@@ -48,12 +48,12 @@ export const DATA = {
   role: "Founder, DevPilotX",
   // Used for the meta description, so it stays under about 155 characters.
   description:
-    "I'm Dipanshu Kumar, known online as DevPilotX. I take a problem and build the software that solves it, with Python, Linux, Docker and servers I run myself.",
+    "I'm Dipanshu, known online as DevPilotX. I take a problem and build the software that solves it, with Python, Linux, Docker and servers I run myself.",
   lead:
     "I take a problem and turn it into working software. The hands-on side is Python, shell scripts, Linux, Docker and the servers I run on AWS and Oracle Cloud. The rest is making the calls and getting it shipped, whether I build it myself, lead a small team, or use AI to move fast.",
   avatarUrl: "/mascot-avatar.png",
   keywords: [
-    "Dipanshu Kumar",
+    "Dipanshu",
     "DevPilotX",
     "devpilotx",
     "software builder",

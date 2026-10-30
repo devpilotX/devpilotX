@@ -93,7 +93,6 @@ export function personNode() {
     "@id": PERSON_ID,
     name: DATA.name,
     givenName: "Dipanshu",
-    familyName: "Kumar",
     alternateName: DATA.brand,
     url: absoluteUrl("/"),
     image: {

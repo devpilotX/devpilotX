@@ -11,7 +11,7 @@ export const metadata = pageMetadata({
   description: BLOG_DESCRIPTION,
   path: "/blog/",
   image: "/blog/og.png",
-  imageAlt: "Blog by Dipanshu Kumar",
+  imageAlt: "Blog by Dipanshu",
 });
 
 const crumbs = [
